@@ -6,7 +6,7 @@ using MsCommun.Reponses;
 
 namespace Gdc.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Cours/[controller]")]
     [ApiController]
     public class EnseignantController : ControllerBase
     {
@@ -61,17 +61,6 @@ namespace Gdc.Api.Controllers
         {
             _logger.LogInformation($"Controller :: {nameof(ModifierUnEnseignant)} ");
             var resultat = await _service.ModifierUnEnseignant(id, enseignantAModifierDto);
-            return Ok(resultat);
-        }
-
-        [HttpPut("numExterne/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ReponseDeRequette>> ModifierUnEnseignant(Guid id, EnseignantAModifierDeGdeDto enseignantAModifierDto)
-        {
-            _logger.LogInformation($"Controller :: {nameof(ModifierUnEnseignant)} ");
-            var resultat = await _service.ModifierUnEnseignantParNumeroExterne(id, enseignantAModifierDto);
             return Ok(resultat);
         }
 

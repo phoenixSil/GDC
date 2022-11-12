@@ -72,29 +72,5 @@ namespace Gdc.Api.Services
             }
            
         }
-
-        public async Task<ReponseDeRequette> ModifierUnEnseignantParNumeroExterne(Guid id, EnseignantAModifierDeGdeDto enseignantAModifierDto)
-        {
-            var dto = new EnseignantAModifierDto
-            {
-                Nom = enseignantAModifierDto.Nom,
-                Prenom = enseignantAModifierDto.Prenom,
-                NumeroExterne = enseignantAModifierDto.NumeroExterne
-            };
-
-            var enseignant = await _mediator.Send(new LireEnseignantParNumeroExterneCmd { NumeroExterne = id })
-                        .ConfigureAwait(false);
-            if (enseignant != null)
-            {
-                dto.Id = enseignant.Id;
-                return await _mediator.Send(new ModifierUnEnseignantCmd { EnseignantId = enseignant.Id, EnseignantAModifierDto = dto })
-                       .ConfigureAwait(false);
-            }
-            else
-            {
-                return await _mediator.Send(new AjouterEnseignantCmd { EnseignantAAjouterDto = _mapper.Map<EnseignantACreerDto>(dto) })
-                       .ConfigureAwait(false);
-            }
-        }
     }
 }

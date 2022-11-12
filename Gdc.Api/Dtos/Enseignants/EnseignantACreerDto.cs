@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Gdc.Api.Modeles.Utils;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gdc.Api.Dtos.Enseignants
 {
@@ -10,5 +11,11 @@ namespace Gdc.Api.Dtos.Enseignants
 
         [Required]
         public Guid NumeroExterne { get; set; }
+
+        [Required]
+        public SPECIALITE_ENSEIGNANT Specialite { get; set; }
+
+        [Required]
+        public NIVEAU_ETUDE Niveau { get; set; }
     }
 }

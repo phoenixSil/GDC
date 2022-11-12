@@ -12,6 +12,5 @@ namespace Gdc.Api.Services.Contrats
         public Task<ReponseDeRequette> ModifierUnEnseignant(Guid id, EnseignantAModifierDto personneAModifierDto);
         public Task<ReponseDeRequette> SupprimerUnEnseignant(Guid id);
         public Task<ReponseDeRequette> SupprimerParNumeroExterne(Guid mumeroExterne);
-        public Task<ReponseDeRequette> ModifierUnEnseignantParNumeroExterne(Guid id, EnseignantAModifierDeGdeDto enseignantAModifierDto);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Gdc.Api.Modeles;
+using Gdc.Api.Modeles.Utils;
 
 namespace Gdc.Api.Dtos.Enseignants
 {
