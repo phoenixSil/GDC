@@ -1,5 +1,5 @@
-using GDE.Api.Datas;
-using GDE.Api.Extensions;
+using Gdc.Datas;
+using Gdc.Extensions;
 using MsCommun.Extensions;
 using Serilog;
 

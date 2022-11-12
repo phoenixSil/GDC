@@ -1,7 +1,7 @@
 ﻿using Gdc.Api.Modeles;
 using Gdc.Api.Repertoires.Contrats;
 using Gdc.Api.Repertoires.Contrats;
-using GDE.Api.Datas;
+using Gdc.Datas;
 using MsCommun.Repertoires;
 
 namespace Gdc.Api.Repertoires

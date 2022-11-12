@@ -1,7 +1,7 @@
 ﻿using Gdc.Api.Modeles;
 using Microsoft.EntityFrameworkCore;
 
-namespace GDE.Api.Datas
+namespace Gdc.Datas
 {
     public class CourDbContext: DbContext
     {

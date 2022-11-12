@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System.Reflection;
 
-namespace GDE.Api.Extensions
+namespace Gdc.Extensions
 {
     public static class ApplicationServiceRegistration
     {

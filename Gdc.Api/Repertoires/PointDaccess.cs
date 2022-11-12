@@ -1,7 +1,7 @@
 ﻿using Gdc.Api.Repertoires;
 using Gdc.Api.Repertoires.Contrats;
 using Gdc.Api.Repertoires.Contrats;
-using GDE.Api.Datas;
+using Gdc.Datas;
 
 namespace Gdc.Api.Repertoires
 {

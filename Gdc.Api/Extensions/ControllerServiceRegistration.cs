@@ -3,7 +3,7 @@
 using Gdc.Api.Services;
 using Gdc.Api.Services.Contrats;
 
-namespace GDE.Api.Extensions
+namespace Gdc.Extensions
 {
     public static class ControllerServiceRegistration
     {

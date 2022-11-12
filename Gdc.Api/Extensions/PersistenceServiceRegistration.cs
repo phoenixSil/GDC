@@ -1,9 +1,9 @@
 ﻿using Gdc.Api.Repertoires;
 using Gdc.Api.Repertoires.Contrats;
-using GDE.Api.Datas;
+using Gdc.Datas;
 using Microsoft.EntityFrameworkCore;
 
-namespace GDE.Api.Extensions
+namespace Gdc.Extensions
 {
     public static class PersistenceServiceRegistration
     {

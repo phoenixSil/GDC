@@ -1,6 +1,6 @@
 ﻿using Gdc.Api.Modeles;
 using Gdc.Api.Repertoires.Contrats;
-using GDE.Api.Datas;
+using Gdc.Datas;
 using Microsoft.EntityFrameworkCore;
 using MsCommun.Repertoires;
 
