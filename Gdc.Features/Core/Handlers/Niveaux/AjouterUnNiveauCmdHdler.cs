@@ -8,6 +8,7 @@ using Gdc.Features.Core.Commandes.Niveaux;
 using Gdc.Features.Core.Handlers.CoursGeneriques;
 using Microsoft.Extensions.Logging;
 using Gdc.Domain.Modeles;
+using System.Net;
 
 namespace Gdc.Features.Core.Handlers.Niveaux
 {
@@ -32,24 +33,26 @@ namespace Gdc.Features.Core.Handlers.Niveaux
                 reponse.Success = false;
                 reponse.Message = "Echec de Lajout dune Niveau a la personne donc l'Id est notee dans le champs d'Id";
                 reponse.Errors = resultatValidation.Errors.Select(q => q.ErrorMessage).ToList();
+                reponse.StatusCode = (int)HttpStatusCode.BadRequest; 
             }
             else
             {
                 var niveauACreer = _mapper.Map<Niveau>(request.NiveauAAjouterDto);
                 niveauACreer.Id = Guid.NewGuid();
                 var result = await _pointDaccess.RepertoireDeNiveau.Ajoutter(niveauACreer);
-                await _pointDaccess.Enregistrer();
 
-                if (result == null)
+                if (result is null)
                 {
                     reponse.Success = false;
                     reponse.Message = "Echec de Lajout dune Niveau a la personne donc l'Id est notee dans le champs d'Id";
+                    reponse.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
                 else
                 {
                     reponse.Success = true;
                     reponse.Message = "Ajout de Personne Reussit";
                     reponse.Id = result.Id;
+                    reponse.StatusCode = (int)HttpStatusCode.Created;
                 }
             }
 
