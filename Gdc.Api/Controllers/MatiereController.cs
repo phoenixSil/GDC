@@ -1,5 +1,5 @@
-﻿using Gdc.Api.Dtos.Matieres;
-using Gdc.Api.Services.Contrats;
+﻿using Gdc.Features.Dtos.Matieres;
+using Gdc.Features.Contrats.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsCommun.Reponses;
@@ -71,8 +71,8 @@ namespace Gdc.Api.Controllers
         public async Task<ActionResult<ReponseDeRequette>> SupprimerUneMatiere(Guid id)
         {
             _logger.LogInformation($"Controller :: {nameof(SupprimerUneMatiere)} ");
-            var resultat = _service.SupprimerUneMatiere(id);
-            return Ok(resultat);
+            var resultat = await _service.SupprimerUneMatiere(id);
+            return StatusCode(resultat.StatusCode, resultat);
         }
     }
 }

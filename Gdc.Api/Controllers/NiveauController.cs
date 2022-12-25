@@ -1,5 +1,5 @@
-﻿using Gdc.Api.Dtos.Niveaux;
-using Gdc.Api.Services.Contrats;
+﻿using Gdc.Features.Dtos.Niveaux;
+using Gdc.Features.Contrats.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsCommun.Reponses;
@@ -19,7 +19,7 @@ namespace Gdc.Api.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<ReponseDeRequette>> AjouterUnNiveau(NiveauGdcACreerDto  niveauAAjouterDto)
+        public async Task<ActionResult<ReponseDeRequette>> AjouterUnNiveau(NiveauACreerDto  niveauAAjouterDto)
         {
             var result = await _service.AjouterUnNiveau(niveauAAjouterDto);
             return Ok(result);
@@ -61,6 +61,16 @@ namespace Gdc.Api.Controllers
         {
             var resultat = await _service.ModifierUnNiveau(niveauId, niveauAModifierDto);
             return Ok(resultat);
+        }
+
+        [HttpDelete("{niveauId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ReponseDeRequette>> SupprimerUnNiveau(Guid niveauId)
+        {
+            var resultat = await _service.SupprimerUnNiveau(niveauId);
+            return StatusCode(resultat.StatusCode, resultat);
         }
     }
 }

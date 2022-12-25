@@ -1,5 +1,5 @@
-﻿using Gdc.Api.Dtos.CoursGeneriques;
-using Gdc.Api.Services.Contrats;
+﻿using Gdc.Features.Dtos.CoursGeneriques;
+using Gdc.Features.Contrats.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsCommun.Reponses;
@@ -48,7 +48,7 @@ namespace Gdc.Api.Controllers
             _logger.LogInformation($"Controller :: {nameof(LireInfoDuneCoursGenerique)} ");
             var matiereDetail = await _service.LireUnCoursGenerique(id);
 
-            if (matiereDetail == null)
+            if (matiereDetail is null)
                 return NotFound();
             return Ok(matiereDetail);
         }
@@ -61,7 +61,7 @@ namespace Gdc.Api.Controllers
         {
             _logger.LogInformation($"Controller :: {nameof(ModifierUnCoursGenerique)} ");
             var resultat = await _service.ModifierUnCoursGenerique(id, matiereAModifierDto);
-            return Ok(resultat);
+            return StatusCode(resultat.StatusCode, resultat);
         }
 
         [HttpDelete("{id}")]
@@ -70,9 +70,8 @@ namespace Gdc.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ReponseDeRequette>> SupprimerUnCoursGenerique(Guid id)
         {
-            _logger.LogInformation($"Controller :: {nameof(SupprimerUnCoursGenerique)} ");
-            var resultat = _service.SupprimerUnCoursGenerique(id);
-            return Ok(resultat);
+            var resultat = await _service.SupprimerUnCoursGenerique(id).ConfigureAwait(false);
+            return StatusCode(resultat.StatusCode, resultat);
         }
     }
 }

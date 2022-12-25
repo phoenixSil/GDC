@@ -1,5 +1,5 @@
-﻿using Gdc.Api.Dtos.Enseignants;
-using Gdc.Api.Services.Contrats;
+﻿using Gdc.Features.Dtos.Enseignants;
+using Gdc.Features.Contrats.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsCommun.Reponses;
@@ -48,7 +48,7 @@ namespace Gdc.Api.Controllers
             _logger.LogInformation($"Controller :: {nameof(LireInfoDuneEnseignant)} ");
             var enseignantDetail = await _service.LireUnEnseignant(id);
 
-            if (enseignantDetail == null)
+            if (enseignantDetail is null)
                 return NotFound();
             return Ok(enseignantDetail);
         }
@@ -83,7 +83,7 @@ namespace Gdc.Api.Controllers
         {
             _logger.LogInformation($"Controller :: {nameof(SupprimerParNumeroExterne)} ");
             var resultat = await _service.SupprimerParNumeroExterne(mumeroExterne);
-            return Ok(resultat);
+            return StatusCode(resultat.StatusCode, resultat);
         }
     }
 }
