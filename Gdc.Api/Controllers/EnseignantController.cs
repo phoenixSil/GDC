@@ -3,6 +3,7 @@ using Gdc.Features.Contrats.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsCommun.Reponses;
+using Polly.Caching;
 
 namespace Gdc.Api.Controllers
 {
@@ -24,7 +25,7 @@ namespace Gdc.Api.Controllers
         {
             _logger.LogInformation($"Controller :: {nameof(AjouterUnEnseignant)} ");
             var result = await _service.AjouterUnEnseignant(enseignantACreer);
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpGet]
@@ -61,7 +62,7 @@ namespace Gdc.Api.Controllers
         {
             _logger.LogInformation($"Controller :: {nameof(ModifierUnEnseignant)} ");
             var resultat = await _service.ModifierUnEnseignant(id, enseignantAModifierDto);
-            return Ok(resultat);
+            return StatusCode(resultat.StatusCode, resultat);
         }
 
         [HttpDelete("{id}")]
@@ -71,8 +72,8 @@ namespace Gdc.Api.Controllers
         public async Task<ActionResult<ReponseDeRequette>> SupprimerUnEnseignant(Guid id)
         {
             _logger.LogInformation($"Controller :: {nameof(SupprimerUnEnseignant)} ");
-            var resultat = _service.SupprimerUnEnseignant(id);
-            return Ok(resultat);
+            var resultat = await _service.SupprimerUnEnseignant(id);
+            return StatusCode(resultat.StatusCode, resultat);
         }
 
         [HttpDelete("numExterne/{mumeroExterne}")]

@@ -26,13 +26,21 @@ namespace Gdc.Api.Messages.EnseignantsMessageHandler
             _logger.LogInformation("On vas entamer la suppresion dun Enseignant A Partir du message recu du Bus ");
             
             var enseignantMessage = context.Message;
-            if (enseignantMessage.Service == DesignationService.SERVICE_GESC)
+            if (enseignantMessage.Service == DesignationService.SERVICE_GEENS)
             {
                 if (enseignantMessage.Type == TypeMessage.SUPPRESSION)
                 {
                     EnseignantDto enseignant = await _service.LireEnseignantParNumeroExterne(enseignantMessage.Id);
-                    await _service.SupprimerUnEnseignant(enseignant.Id).ConfigureAwait(false);
-                    _logger.LogInformation("BUS => GdC: Le enseignant a Ete bien supprimer  !!");
+
+                    if(enseignant is not null)
+                    {
+                        await _service.SupprimerUnEnseignant(enseignant.Id).ConfigureAwait(false);
+                        _logger.LogInformation("BUS => GdC: Le enseignant a Ete bien supprimer  !!");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("BUS => GdC: Lenseignant nexiste pas  !!");
+                    }
 
                 }
             }

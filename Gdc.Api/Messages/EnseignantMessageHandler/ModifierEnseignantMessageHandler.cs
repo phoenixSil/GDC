@@ -27,7 +27,7 @@ namespace Gdc.Api.Messages.EnseignantsMessageHandler
         {
             var enseignantMessage = context.Message;
             
-            if (enseignantMessage.Service == DesignationService.SERVICE_GESC)
+            if (enseignantMessage.Service == DesignationService.SERVICE_GEENS)
             {
                 if (enseignantMessage.Type == TypeMessage.MODIFICATION)
                 {

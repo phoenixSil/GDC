@@ -7,6 +7,7 @@ using Gdc.Features.Core.Commandes.Enseignants;
 using AutoMapper;
 using Gdc.Features.Core.Handlers.CoursGeneriques;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace Gdc.Features.Core.Handlers.Enseignants
 {
@@ -23,28 +24,37 @@ namespace Gdc.Features.Core.Handlers.Enseignants
         public override async Task<ReponseDeRequette> Handle(SupprimerUnEnseignantCmd request, CancellationToken cancellationToken)
         {
             var reponse = new ReponseDeRequette();
-
             var enseignant = await _pointDaccess.RepertoireDenseignant.Lire(request.EnseignantId);
 
             if (enseignant is null)
             {
-                reponse.Success = true;
+                reponse.Success = false;
                 reponse.Message = $"l'enseignant d\"Id [{request.EnseignantId}] n'existe pas dans la base :: coursDb";
                 reponse.Id = request.EnseignantId;
-                return reponse;
-
+                reponse.StatusCode = (int)HttpStatusCode.NotFound;
             }
             else
             {
-                await _pointDaccess.RepertoireDenseignant.Supprimer(enseignant);
-                await _pointDaccess.Enregistrer();
+                var resultat = await _pointDaccess.RepertoireDenseignant.Supprimer(enseignant);
 
-                reponse.Success = true;
-                reponse.Message = "Suppression Reussit ";
-                reponse.Id = request.EnseignantId;
+                if(resultat is false)
+                {
+                    reponse.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-                return reponse;
+                    reponse.Success = false;
+                    reponse.Message = "Suppression Non effectuer de lenseignant ";
+                    reponse.Id = request.EnseignantId;
+                }
+                else
+                {
+                    reponse.StatusCode = (int)HttpStatusCode.OK;
+                    reponse.Success = true;
+                    reponse.Message = "Suppression Reussit ";
+                    reponse.Id = request.EnseignantId;
+                }
             }
+
+            return reponse;
         }
     }
 }

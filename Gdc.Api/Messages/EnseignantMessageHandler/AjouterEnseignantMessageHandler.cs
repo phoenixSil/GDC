@@ -26,7 +26,7 @@ namespace Gdc.Api.Messages.HandlersMessages
         public async Task Consume(ConsumeContext<EnseignantACreerMessage> context)
         {
             var enseignantMessage = context.Message;
-            if (enseignantMessage.Service == DesignationService.SERVICE_GESC)
+            if (enseignantMessage.Service == DesignationService.SERVICE_GEENS)
             {
                 if (enseignantMessage.Type == TypeMessage.CREATION)
                 {
