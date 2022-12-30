@@ -8,6 +8,7 @@ namespace Gdc.Features.Dtos.Matieres
 {
     public class MatiereDetailDto: IMatiereDto
     {
+        public Guid Id { get; set; }
         public int NbreHeureInitiale { get; set; }
         public string CodeMatiere { get; set; }
         public string Designation { get; set; }

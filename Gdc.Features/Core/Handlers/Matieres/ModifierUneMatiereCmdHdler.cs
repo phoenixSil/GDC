@@ -10,49 +10,84 @@ using Gdc.Features.Core.Commandes.Matieres;
 using Gdc.Features.Core.BaseFactoryClass;
 using Gdc.Features.Core.Handlers.CoursGeneriques;
 using Microsoft.Extensions.Logging;
+using System.Net;
+using Castle.Core.Logging;
+using Newtonsoft.Json;
+using MassTransit;
+using MsCommun.Messages.Matieres;
+using Gdc.Domain.Modeles;
+using MsCommun.Messages.Utils;
 
 namespace Gdc.Features.Core.Handlers.Matieres
 {
     public class ModifierUneMatiereCmdHdler : BaseCommandHandler<ModifierUneMatiereCmd, ReponseDeRequette>
     {
         private readonly ILogger<ModifierUneMatiereCmdHdler> _logger;
+        private readonly IPublishEndpoint _publishEndPoint;
 
-        public ModifierUneMatiereCmdHdler(ILogger<ModifierUneMatiereCmdHdler> logger , IPointDaccess pointDaccess, IMediator mediator, IMapper mapper)
+        public ModifierUneMatiereCmdHdler(IPublishEndpoint publishEndPoint, ILogger<ModifierUneMatiereCmdHdler> logger , IPointDaccess pointDaccess, IMediator mediator, IMapper mapper)
              : base(pointDaccess, mediator, mapper)
         {
             _logger = logger;
+            _publishEndPoint = publishEndPoint;
         }
         public override async Task<ReponseDeRequette> Handle(ModifierUneMatiereCmd request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"On vas essayer de Modifier une Matiere . Donness {JsonConvert.SerializeObject(request.MatiereAModifierDto)}");
+            var reponse = new ReponseDeRequette();
             var matiere = await _pointDaccess.RepertoireDeMatiere.Lire(request.MatiereId);
 
             if (matiere is null)
-                throw new NotFoundException(nameof(matiere), request.MatiereId);
-
-            if (request.MatiereAModifierDto != null)
             {
-                var reponse = new ReponseDeRequette();
+                reponse.Success = false;
+                reponse.Message = "La matiere specifier est introuvable ";
+                reponse.Id = request.MatiereId;
+                reponse.StatusCode = (int)HttpStatusCode.NotFound;
+                _logger.LogWarning($"la matiere nexsite pas Id : [{request.MatiereId}]");
+            }
+            else
+            {
                 var validateur = new ValidateurDeLaModificationDuneMatiereDto(_pointDaccess);
                 var resultatValidation = await validateur.ValidateAsync(request.MatiereAModifierDto, cancellationToken);
 
-                if (!await _pointDaccess.RepertoireDeMatiere.Exists(request.MatiereId))
-                    throw new BadRequestException($"L'un des Ids Matiere::[{request.MatiereId}] que vous avez entrez est null");
+                if (resultatValidation.IsValid is false)
+                {
+                    reponse.Success = false;
+                    reponse.Message = "Les Donnees de la matiere ne sont pas valides  ";
+                    reponse.Id = request.MatiereId;
+                    reponse.StatusCode = (int)HttpStatusCode.BadRequest;
+                    _logger.LogError($"Les Donnees de la matiere ne sont pas valides : {JsonConvert.SerializeObject(request.MatiereAModifierDto)}");
 
-                if (resultatValidation.IsValid == false)
-                    throw new ValidationException(resultatValidation);
+                }
+                else
+                {
+                    _mapper.Map(request.MatiereAModifierDto, matiere);
 
-                _mapper.Map(request.MatiereAModifierDto, matiere);
+                    await _pointDaccess.RepertoireDeMatiere.Modifier(matiere);
+                    await _pointDaccess.Enregistrer();
 
-                await _pointDaccess.RepertoireDeMatiere.Modifier(matiere);
-                await _pointDaccess.Enregistrer();
+                    reponse.Success = true;
+                    reponse.Message = "Modification Reussit";
+                    reponse.Id = matiere.Id;
+                    reponse.StatusCode = (int)HttpStatusCode.OK;
+                    _logger.LogInformation($"Modification de la Matiere Reussit ID: [{request.MatiereId}]");
 
-                reponse.Success = true;
-                reponse.Message = "Modification Reussit";
-                reponse.Id = matiere.Id;
+                    // deposer la matiere creer sur le Bus 
+                    var dtoMatiere = await GenerateDtoMatierePourLeBus(request.MatiereAModifierDto).ConfigureAwait(false);
+                    await _publishEndPoint.Publish(dtoMatiere, cancellationToken).ConfigureAwait(false);
 
-                return reponse;
+                }
             }
-            throw new BadRequestException("matiere a Modifier est null");
+            return reponse;
+        }
+
+        private async Task<MatiereAModifierMessage> GenerateDtoMatierePourLeBus(MatiereAModifierDto matiere)
+        {
+            var matiereDetail = await _pointDaccess.RepertoireDeMatiere.LireDetail(matiere.Id);
+            var matiereMapper = _mapper.Map<MatiereAModifierMessage>(matiereDetail);
+            matiereMapper.Service = DesignationService.SERVICE_GDC;
+            matiereMapper.Type = TypeMessage.MODIFICATION;
+            return matiereMapper;
         }
     }
 }

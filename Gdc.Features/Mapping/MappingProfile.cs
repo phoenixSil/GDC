@@ -6,6 +6,7 @@ using Gdc.Features.Dtos.Niveaux;
 using Gdc.Domain.Modeles;
 using MsCommun.Messages.Niveaux;
 using MsCommun.Messages.Enseignants;
+using MsCommun.Messages.Matieres;
 
 namespace Gdc.Features.Mapping
 {
@@ -18,6 +19,33 @@ namespace Gdc.Features.Mapping
             CreateMap<Matiere, MatiereDetailDto>().ReverseMap();
             CreateMap<Matiere, MatiereACreerDto>().ReverseMap();
             CreateMap<Matiere, MatiereAModifierDto>().ReverseMap();
+            CreateMap<MatiereDetailDto, MatiereACreerMessage>()
+                .ForMember(des => des.NomEnseignant,
+                        opt => opt.MapFrom(src => src.Enseignant.Nom))
+                .ForMember(des => des.PrenomEnseignant,
+                        opt => opt.MapFrom(src => src.Enseignant.Prenom))
+                .ForMember(des => des.DesignationCycle,
+                        opt => opt.MapFrom(src => src.Niveau.DesignationCycle))
+                .ForMember(des => des.DesignationFiliere,
+                        opt => opt.MapFrom(src => src.Niveau.DesignationFiliere))
+                .ForMember(des => des.DesignationNiveau,
+                        opt => opt.MapFrom(src => src.Niveau.Designation))
+                .ForMember(des => des.NumeroExterne,
+                        opt => opt.MapFrom(src => src.Id)).ReverseMap();
+
+            CreateMap<MatiereDetailDto, MatiereAModifierMessage>()
+               .ForMember(des => des.NomEnseignant,
+                       opt => opt.MapFrom(src => src.Enseignant.Nom))
+               .ForMember(des => des.PrenomEnseignant,
+                       opt => opt.MapFrom(src => src.Enseignant.Prenom))
+               .ForMember(des => des.DesignationCycle,
+                       opt => opt.MapFrom(src => src.Niveau.DesignationCycle))
+               .ForMember(des => des.DesignationFiliere,
+                       opt => opt.MapFrom(src => src.Niveau.DesignationFiliere))
+               .ForMember(des => des.DesignationNiveau,
+                       opt => opt.MapFrom(src => src.Niveau.Designation))
+               .ForMember(des => des.NumeroExterne,
+                       opt => opt.MapFrom(src => src.Id)).ReverseMap();
 
             // Enseignants 
             CreateMap<Enseignant, EnseignantDto>().ReverseMap();

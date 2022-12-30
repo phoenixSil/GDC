@@ -8,18 +8,23 @@ using AutoMapper;
 using Gdc.Features.Core.Handlers.CoursGeneriques;
 using Microsoft.Extensions.Logging;
 using Gdc.Domain.Modeles;
+using System.Net;
+using MassTransit;
+using MsCommun.Messages.Matieres;
+using MsCommun.Messages.Utils;
 
 namespace Gdc.Features.Core.Handlers.Matieres
 {
     public class SupprimerUneMatiereCmdHdler : BaseCommandHandler<SupprimerUneMatiereCmd, ReponseDeRequette>
     {
-
         private readonly ILogger<SupprimerUneMatiereCmdHdler> _logger;
+        private readonly IPublishEndpoint _publishEndPoint;
 
-        public SupprimerUneMatiereCmdHdler(ILogger<SupprimerUneMatiereCmdHdler> logger, IPointDaccess pointDaccess, IMediator mediator, IMapper mapper)
+        public SupprimerUneMatiereCmdHdler(IPublishEndpoint publishEndPoint, ILogger<SupprimerUneMatiereCmdHdler> logger, IPointDaccess pointDaccess, IMediator mediator, IMapper mapper)
              : base(pointDaccess, mediator, mapper)
         {
             _logger = logger;
+            _publishEndPoint = publishEndPoint;
         }
         public override async Task<ReponseDeRequette> Handle(SupprimerUneMatiereCmd request, CancellationToken cancellationToken)
         {
@@ -30,7 +35,7 @@ namespace Gdc.Features.Core.Handlers.Matieres
 
             var matiere = await _pointDaccess.RepertoireDeMatiere.Lire(request.MatiereId);
 
-            if (matiere != null)
+            if (matiere is not null)
             {
                 await _pointDaccess.RepertoireDeMatiere.Supprimer(matiere);
                 await _pointDaccess.Enregistrer();
@@ -38,10 +43,28 @@ namespace Gdc.Features.Core.Handlers.Matieres
                 reponse.Success = true;
                 reponse.Message = "Suppression Reussit ";
                 reponse.Id = request.MatiereId;
+                reponse.StatusCode = (int)HttpStatusCode.OK;
 
-                return reponse;
+                // deposer la matiere creer sur le Bus 
+                var dtoMatiere = GenerateDtoMatierePourLeBus(request.MatiereId);
+                await _publishEndPoint.Publish(dtoMatiere, cancellationToken).ConfigureAwait(false);
             }
-            throw new NotFoundException(nameof(Matiere), request.MatiereId);
+            else
+            {
+                reponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+                throw new NotFoundException(nameof(Matiere), request.MatiereId);
+            }
+            return reponse;
+        }
+
+        private MatiereASupprimerMessage GenerateDtoMatierePourLeBus(Guid matiereId)
+        {
+            return new MatiereASupprimerMessage
+            {
+                Id = matiereId,
+                Service = DesignationService.SERVICE_GDC,
+                Type = TypeMessage.SUPPRESSION
+            };
         }
     }
 }
