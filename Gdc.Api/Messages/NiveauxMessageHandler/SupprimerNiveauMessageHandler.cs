@@ -31,7 +31,7 @@ namespace Gdc.Api.Messages.NiveauxMessageHandler
                 {
                     NiveauDetailDto niveau = await _service.LireNiveauParNumeroExterne(niveauMessage.NumeroExterne);
 
-                    if(niveau is  not null)
+                    if(niveau is not null)
                     {
                         await _service.SupprimerUnNiveau(niveau.Id).ConfigureAwait(false);
                         _logger.LogInformation("BUS => GdC: Le niveau a Ete bien supprimer  !!");
@@ -39,9 +39,7 @@ namespace Gdc.Api.Messages.NiveauxMessageHandler
                     else
                     {
                         _logger.LogInformation("BUS => GdC: Le niveau nexiste pas  !!");
-                    }
-                    
-
+                    }  
                 }
             }
         }

@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using Gdc.Features.Dtos.Enseignants;
-using Gdc.Features.Contrats.Repertoires;
 using Gdc.Features.Contrats.Services;
 using MassTransit;
 using MsCommun.Messages.Enseignants;
 using MsCommun.Messages.Utils;
-using Microsoft.Extensions.Logging;
-using Gdc.Application.Services;
 
 namespace Gdc.Api.Messages.HandlersMessages
 {

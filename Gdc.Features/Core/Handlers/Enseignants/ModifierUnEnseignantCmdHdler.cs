@@ -10,6 +10,8 @@ using Gdc.Features.Core.Commandes.Enseignants;
 using Gdc.Features.Core.Handlers.CoursGeneriques;
 using Microsoft.Extensions.Logging;
 using Gdc.Features.Core.BaseFactoryClass;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace Gdc.Features.Core.Handlers.Enseignants
 {
@@ -26,35 +28,47 @@ namespace Gdc.Features.Core.Handlers.Enseignants
         }
         public override async Task<ReponseDeRequette> Handle(ModifierUnEnseignantCmd request, CancellationToken cancellationToken)
         {
+             _logger.LogInformation($"On vas essayer de Modifier une Enseignant . Donness {JsonConvert.SerializeObject(request.EnseignantAModifierDto)}");
+            var reponse = new ReponseDeRequette();
             var enseignant = await _pointDaccess.RepertoireDenseignant.Lire(request.EnseignantId);
 
             if (enseignant is null)
-                throw new NotFoundException(nameof(enseignant), request.EnseignantId);
-
-            if (request.EnseignantAModifierDto != null)
             {
-                var reponse = new ReponseDeRequette();
+                reponse.Success = false;
+                reponse.Message = "L'enseignant specifier est introuvable ";
+                reponse.Id = request.EnseignantId;
+                reponse.StatusCode = (int)HttpStatusCode.NotFound;
+                _logger.LogWarning($"l'enseignant nexsite pas Id : [{request.EnseignantId}]");
+            }
+            else
+            {
                 var validateur = new ValidateurDeLaModificationDunEnseignantDto();
                 var resultatValidation = await validateur.ValidateAsync(request.EnseignantAModifierDto, cancellationToken);
 
-                if (!await _pointDaccess.RepertoireDenseignant.Exists(request.EnseignantId))
-                    throw new BadRequestException($"L'un des Ids Enseignant::[{request.EnseignantId}] que vous avez entrez est null");
+                if (resultatValidation.IsValid is false)
+                {
+                    reponse.Success = false;
+                    reponse.Message = "Les Donnees de l' enseignant ne sont pas valides  ";
+                    reponse.Id = request.EnseignantId;
+                    reponse.StatusCode = (int)HttpStatusCode.BadRequest;
+                    _logger.LogError($"Les Donnees de l'enseignant ne sont pas valides : {JsonConvert.SerializeObject(request.EnseignantAModifierDto)}");
 
-                if (resultatValidation.IsValid == false)
-                    throw new ValidationException(resultatValidation);
+                }
+                else
+                {
+                    _mapper.Map(request.EnseignantAModifierDto, enseignant);
 
-                _mapper.Map(request.EnseignantAModifierDto, enseignant);
+                    await _pointDaccess.RepertoireDenseignant.Modifier(enseignant);
+                    await _pointDaccess.Enregistrer();
 
-                await _pointDaccess.RepertoireDenseignant.Modifier(enseignant);
-                await _pointDaccess.Enregistrer();
-
-                reponse.Success = true;
-                reponse.Message = "Modification Reussit";
-                reponse.Id = enseignant.Id;
-
-                return reponse;
+                    reponse.Success = true;
+                    reponse.Message = "Modification Reussit";
+                    reponse.Id = enseignant.Id;
+                    reponse.StatusCode = (int)HttpStatusCode.OK;
+                    _logger.LogInformation($"Modification du Enseignant Reussit ID: [{request.EnseignantId}]");
+                }
             }
-            throw new BadRequestException("enseignant a Modifier est null");
+            return reponse;
         }
     }
 }

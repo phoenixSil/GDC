@@ -28,7 +28,7 @@ namespace Gdc.Features.Core.Handlers.Niveaux
             var validateur = new ValidateurDeLaCreationDeNiveauDto();
             var resultatValidation = await validateur.ValidateAsync(request.NiveauAAjouterDto);
 
-            if (resultatValidation.IsValid == false)
+            if (resultatValidation.IsValid is false)
             {
                 reponse.Success = false;
                 reponse.Message = "Echec de Lajout dune Niveau a la personne donc l'Id est notee dans le champs d'Id";
@@ -44,13 +44,13 @@ namespace Gdc.Features.Core.Handlers.Niveaux
                 if (result is null)
                 {
                     reponse.Success = false;
-                    reponse.Message = "Echec de Lajout dune Niveau a la personne donc l'Id est notee dans le champs d'Id";
+                    reponse.Message = "Echec de Lajout dune Niveau";
                     reponse.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
                 else
                 {
                     reponse.Success = true;
-                    reponse.Message = "Ajout de Personne Reussit";
+                    reponse.Message = "Ajout de Niveau Reussit";
                     reponse.Id = result.Id;
                     reponse.StatusCode = (int)HttpStatusCode.Created;
                 }

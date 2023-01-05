@@ -28,19 +28,13 @@ namespace Gdc.Features.Core.Handlers.Niveaux
 
             var niveau = await _pointDaccess.RepertoireDeNiveau.Lire(request.Id);
 
-            if (niveau == null)
-                throw new NotFoundException(nameof(Niveau), request.Id);
-
-            if (niveau != null)
+            if (niveau is not null)
             {
                 var resultat = await _pointDaccess.RepertoireDeNiveau.Supprimer(niveau);
-                if (resultat == true)
+                if (resultat is true)
                 {
                     response.Success = true;
                     response.Message = $"l'niveau d'Id [{request.Id}] a ete supprimer avec success ";
-
-                    // on supprime la personne associer a cet niveau 
-                    await _mediator.Send(new SupprimerUnNiveauCmd { Id = niveau.Id }, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

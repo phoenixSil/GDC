@@ -8,6 +8,7 @@ using AutoMapper;
 using Gdc.Features.Core.Handlers.CoursGeneriques;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using MassTransit;
 
 namespace Gdc.Features.Core.Handlers.Enseignants
 {
@@ -44,6 +45,7 @@ namespace Gdc.Features.Core.Handlers.Enseignants
                     reponse.Success = false;
                     reponse.Message = "Suppression Non effectuer de lenseignant ";
                     reponse.Id = request.EnseignantId;
+                    reponse.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
                 else
                 {
@@ -51,6 +53,7 @@ namespace Gdc.Features.Core.Handlers.Enseignants
                     reponse.Success = true;
                     reponse.Message = "Suppression Reussit ";
                     reponse.Id = request.EnseignantId;
+                    reponse.StatusCode = (int)HttpStatusCode.OK;
                 }
             }
 

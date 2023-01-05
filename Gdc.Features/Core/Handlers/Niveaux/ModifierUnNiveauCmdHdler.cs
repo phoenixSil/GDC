@@ -9,6 +9,8 @@ using Gdc.Features.Dtos.Niveaux.Validations;
 using Gdc.Features.Core.Commandes.Niveaux;
 using Gdc.Features.Core.Handlers.CoursGeneriques;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace Gdc.Features.Core.Handlers.Niveaux
 {
@@ -25,35 +27,47 @@ namespace Gdc.Features.Core.Handlers.Niveaux
         }
         public override async Task<ReponseDeRequette> Handle(ModifierUnNiveauCmd request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"On vas essayer de Modifier un Niveau . Donness {JsonConvert.SerializeObject(request.NiveauAModifierDto)}");
+            var reponse = new ReponseDeRequette();
             var niveau = await _pointDaccess.RepertoireDeNiveau.Lire(request.NiveauId);
 
             if (niveau is null)
-                throw new NotFoundException(nameof(niveau), request.NiveauId);
-
-            if (request.NiveauAModifierDto != null)
             {
-                var reponse = new ReponseDeRequette();
+                reponse.Success = false;
+                reponse.Message = "Le niveau specifier est introuvable ";
+                reponse.Id = request.NiveauId;
+                reponse.StatusCode = (int)HttpStatusCode.NotFound;
+                _logger.LogWarning($"le niveau nexsite pas Id : [{request.NiveauId}]");
+            }
+            else
+            {
                 var validateur = new ValidateurDeLaModificationDeNiveauDto();
                 var resultatValidation = await validateur.ValidateAsync(request.NiveauAModifierDto, cancellationToken);
 
-                if (!await _pointDaccess.RepertoireDeNiveau.Exists(request.NiveauId))
-                    throw new BadRequestException($"L'un des Ids Niveau::[{request.NiveauId}] que vous avez entrez est null");
+                if (resultatValidation.IsValid is false)
+                {
+                    reponse.Success = false;
+                    reponse.Message = "Les Donnees du niveau ne sont pas valides  ";
+                    reponse.Id = request.NiveauId;
+                    reponse.StatusCode = (int)HttpStatusCode.BadRequest;
+                    _logger.LogError($"Les Donnees du niveau ne sont pas valides : {JsonConvert.SerializeObject(request.NiveauAModifierDto)}");
 
-                if (resultatValidation.IsValid == false)
-                    throw new ValidationException(resultatValidation);
+                }
+                else
+                {
+                    _mapper.Map(request.NiveauAModifierDto, niveau);
 
-                _mapper.Map(request.NiveauAModifierDto, niveau);
+                    await _pointDaccess.RepertoireDeNiveau.Modifier(niveau);
+                    await _pointDaccess.Enregistrer();
 
-                await _pointDaccess.RepertoireDeNiveau.Modifier(niveau);
-                await _pointDaccess.Enregistrer();
-
-                reponse.Success = true;
-                reponse.Message = "Modification Reussit";
-                reponse.Id = niveau.Id;
-
-                return reponse;
+                    reponse.Success = true;
+                    reponse.Message = "Modification Reussit";
+                    reponse.Id = niveau.Id;
+                    reponse.StatusCode = (int)HttpStatusCode.OK;
+                    _logger.LogInformation($"Modification du Niveau Reussit ID: [{request.NiveauId}]");
+                }
             }
-            throw new BadRequestException("niveau a Modifier est null");
+            return reponse;
         }
     }
 }

@@ -57,7 +57,6 @@ namespace Gdc.Features.Core.Handlers.Matieres
                     reponse.Id = request.MatiereId;
                     reponse.StatusCode = (int)HttpStatusCode.BadRequest;
                     _logger.LogError($"Les Donnees de la matiere ne sont pas valides : {JsonConvert.SerializeObject(request.MatiereAModifierDto)}");
-
                 }
                 else
                 {
